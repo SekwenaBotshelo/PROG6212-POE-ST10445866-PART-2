@@ -1,114 +1,23 @@
 # PROG6212-POE
+Student Information
+
 Student Name: Botshelo Koketso Sekwena
 
 Student Number: ST10445866
 
-GitHub Repository: https://github.com/SekwenaBotshelo/PROG6212-POE-ST10445866-PART-2.git 
+GitHub Repository: https://github.com/SekwenaBotshelo/PROG6212-POE-ST10445866-PART-2.git
 
-Project Description
+🚀 Project Description
 
 The Claims Management System is a comprehensive web application designed to streamline the process of managing academic claims within an educational institution. The system provides distinct interfaces for Lecturers, Coordinators, and Managers to handle claim submission, verification, approval, and reporting.
+Student Name: Botshelo Koketso Sekwena
 
-Key Features
+📚 Bibliography
+Steve Smith. (2024, June 17). Overview of ASP.NET Core MVC. Retrieved from Microsoft Ignite: https://learn.microsoft.com/en-us/aspnet/core/mvc/overview?view=aspnetcore-9.0
 
-For Lecturers:
+xUnit.net. (n.d.). About xUnit.net. Retrieved from xUnit.net: https://xunit.net/?tabs=cs
 
-- Submit new claims with detailed information
-- Upload supporting documents (PDF, DOCX, XLSX)
-- Track claim status in real-time
-- View personal claim history
+Microsoft Ignite. (2025, January 29). ASP.NET Core security topics. Retrieved from Microsoft Ignite: https://learn.microsoft.com/en-us/aspnet/core/security/?view=aspnetcore-9.0
 
-For Coordinators:
+Andrew Troelsen, Phil Japikse. (2022). Pro C# 10 with .NET 6. New York: Apress.
 
-- Verify submitted claims for accuracy
-- Approve or reject claims with comments
-- Monitor pending verification queue
-- View detailed claim information
-
-For Managers:
-
-- Approve verified claims
-- Generate comprehensive reports
-- View analytics and summary statistics
-- Monitor overall claim processing
-
-Technical Design
-
-Architecture Overview
-
-The application follows a Model-View-Controller (MVC) architecture pattern with clear separation of concerns:
-
-PROG6212-POE/
-
-├── Controllers/
-
-│   ├── HomeController.cs          # Main navigation controller
-
-│   ├── LecturerController.cs      # Lecturer-specific functionality
-
-│   ├── CoordinatorController.cs   # Coordinator verification features
-
-│   └── ManagerController.cs       # Manager approval and reporting
-
-├── Models/
-
-│   ├── Claim.cs                   # Main claim data model
-
-│   ├── ClaimStatus.cs            # Status enumeration
-
-│   └── ErrorViewModel.cs         # Error handling model
-
-├── Views/
-
-│   ├── Home/                     # Public pages
-
-│   │   ├── Index.cshtml
-
-│   │   ├── About.cshtml
-
-│   │   ├── Contact.cshtml
-
-│   │   └── Privacy.cshtml
-
-│   ├── Lecturer/                 # Lecturer interface
-
-│   │   ├── Dashboard.cshtml
-
-│   │   ├── SubmitClaim.cshtml
-
-│   │   ├── TrackStatus.cshtml
-
-│   │   └── UploadDocument.cshtml
-
-│   ├── Coordinator/              # Coordinator interface
-
-│   │   ├── Dashboard.cshtml
-
-│   │   ├── VerifyClaims.cshtml
-
-│   │   ├── VerifyClaimDetails.cshtml
-
-│   │   └── Reports.cshtml
-
-│   └── Manager/                  # Manager interface
-
-│       ├── Dashboard.cshtml
-
-│       ├── ApproveClaims.cshtml
-
-│       ├── ApproveClaimDetails.cshtml
-
-│       └── Reports.cshtml
-
-├── Tests/                        # xUnit test project
-
-│   ├── CoordinatorControllerTests.cs
-
-│   ├── LecturerControllerTests.cs
-
-│   └── ManagerControllerTests.cs
-
-└── Program.cs                    # Application entry point
-
-
-Bibliography
