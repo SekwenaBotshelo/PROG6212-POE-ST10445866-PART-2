@@ -17,7 +17,7 @@ namespace PROG6212_POE.Controllers
             ViewBag.VerifiedCount = ClaimsList.Count(c => c.Status == "Verified");
             ViewBag.TotalCount = ClaimsList.Count;
 
-            return View();
+            return View(ClaimsList);
         }
 
         // Show pending claims for verification
@@ -59,6 +59,14 @@ namespace PROG6212_POE.Controllers
                 claim.Status = "Rejected";
             }
             return RedirectToAction("VerifyClaims");
+        }
+
+        // Reports page for Coordinator
+        public IActionResult Reports()
+        {
+            // Pass all claims to the view (can later filter by month or status)
+            var allClaims = ClaimsList;
+            return View(allClaims);
         }
     }
 }

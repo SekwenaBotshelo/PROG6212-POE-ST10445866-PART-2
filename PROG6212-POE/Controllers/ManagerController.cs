@@ -19,7 +19,7 @@ namespace PROG6212_POE.Controllers
             ViewBag.RejectedCount = ClaimsList.Count(c => c.Status == "Rejected");
             ViewBag.TotalCount = ClaimsList.Count;
 
-            return View();
+            return View(ClaimsList);
         }
 
         // Show verified claims for manager approval
