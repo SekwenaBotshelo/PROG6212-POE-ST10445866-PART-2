@@ -25,5 +25,7 @@ namespace PROG6212_POE.Models
         public string Status { get; set; } = "Pending Verification";
 
         public double TotalAmount => TotalHours * HourlyRate;
+
+        public List<string> UploadedFiles { get; set; } = new List<string>();
     }
 }

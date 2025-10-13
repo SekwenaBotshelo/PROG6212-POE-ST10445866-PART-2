@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PROG6212_POE.Models;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace PROG6212_POE.Controllers
 {
@@ -49,43 +49,65 @@ namespace PROG6212_POE.Controllers
         }
 
         // GET: Upload Supporting Documents
-        public IActionResult UploadDocuments()
+        public IActionResult UploadDocuments(int? claimId)
         {
-            return View("UploadDocument");
+            if (claimId == null)
+            {
+                TempData["ErrorMessage"] = "Claim ID is required to upload a document.";
+                return RedirectToAction("Dashboard");
+            }
+
+            var claim = ClaimsList.FirstOrDefault(c => c.ClaimId == claimId);
+            if (claim == null)
+            {
+                TempData["ErrorMessage"] = "Claim not found.";
+                return RedirectToAction("Dashboard");
+            }
+
+            return View("UploadDocument", claim);
         }
 
         // POST: Upload Supporting Documents
         [HttpPost]
-        public IActionResult UploadDocuments(IFormFile supportingFile)
+        public IActionResult UploadDocuments(int claimId, IFormFile supportingFile)
         {
+            var claim = ClaimsList.FirstOrDefault(c => c.ClaimId == claimId);
+            if (claim == null)
+            {
+                TempData["ErrorMessage"] = "Claim not found.";
+                return RedirectToAction("Dashboard");
+            }
+
             if (supportingFile != null && supportingFile.Length > 0)
             {
-                var allowedExtensions = new[] { ".txt" };
-                var extension = Path.GetExtension(supportingFile.FileName);
+                var allowedExtensions = new[] { ".pdf", ".docx", ".xlsx" };
+                var extension = Path.GetExtension(supportingFile.FileName).ToLower();
 
-                if (!allowedExtensions.Contains(extension.ToLower()))
+                if (!allowedExtensions.Contains(extension))
                 {
-                    TempData["ErrorMessage"] = "Only .txt files are allowed.";
-                    return View("UploadDocument");
+                    TempData["ErrorMessage"] = "Only .pdf, .docx, and .xlsx files are allowed.";
+                    return View("UploadDocument", claim);
                 }
 
                 var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
                 if (!Directory.Exists(uploadsPath))
                     Directory.CreateDirectory(uploadsPath);
 
-                var filePath = Path.Combine(uploadsPath, supportingFile.FileName);
+                var uniqueFileName = $"{claimId}_{Path.GetFileName(supportingFile.FileName)}";
+                var filePath = Path.Combine(uploadsPath, uniqueFileName);
 
                 using (var stream = new FileStream(filePath, FileMode.Create))
                 {
                     supportingFile.CopyTo(stream);
                 }
 
+                claim.UploadedFiles.Add(uniqueFileName);
                 TempData["SuccessMessage"] = $"File '{supportingFile.FileName}' uploaded successfully!";
-                return View("UploadDocument");
+                return View("UploadDocument", claim);
             }
 
             TempData["ErrorMessage"] = "Please select a file to upload.";
-            return View("UploadDocument");
+            return View("UploadDocument", claim);
         }
     }
 }

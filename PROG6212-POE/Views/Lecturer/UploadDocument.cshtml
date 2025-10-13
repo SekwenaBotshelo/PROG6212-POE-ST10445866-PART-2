@@ -1,8 +1,10 @@
-﻿@{
+﻿@model PROG6212_POE.Models.Claim
+
+@{
     ViewData["Title"] = "Upload Supporting Document";
 }
 
-<h2>Upload Supporting Document</h2>
+<h2>Upload Supporting Document for Claim ID: @Model.ClaimId</h2>
 
 @if (TempData["SuccessMessage"] != null)
 {
@@ -14,9 +16,26 @@
 }
 
 <form asp-action="UploadDocuments" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="claimId" value="@Model.ClaimId" />
+
     <div class="form-group mb-3">
         <label for="supportingFile">Select File</label>
         <input type="file" name="supportingFile" id="supportingFile" class="form-control" />
+        <small class="form-text text-muted">Allowed formats: .pdf, .docx, .xlsx</small>
     </div>
+
     <button type="submit" class="btn btn-primary">Upload</button>
 </form>
+
+@if (Model.UploadedFiles.Any())
+{
+    <h4 class="mt-4">Uploaded Files</h4>
+    <ul>
+        @foreach (var file in Model.UploadedFiles)
+        {
+            <li>@file</li>
+        }
+    </ul>
+}
+
+<a asp-action="Dashboard" class="btn btn-secondary mt-3">Back to Dashboard</a>
