@@ -1,27 +1,45 @@
-﻿@{
-    ViewData["Title"] = "Verify Claims";
+﻿@model List<PROG6212_POE.Models.Claim>
+@{
+    ViewData["Title"] = "Verify Pending Claims";
 }
-<h2>Verify Pending Claims</h2>
 
-<table class="table">
+<h2>@ViewData["Title"]</h2>
+
+<table class="table table-striped table-bordered mt-3">
     <thead>
         <tr>
             <th>Claim ID</th>
             <th>Lecturer</th>
             <th>Month</th>
+            <th>Total Hours</th>
+            <th>Total Amount</th>
             <th>Status</th>
             <th>Action</th>
         </tr>
     </thead>
     <tbody>
-        <tr>
-            <td>101</td>
-            <td>Dr. Adams</td>
-            <td>August 2025</td>
-            <td>Pending</td>
-            <td>
-                <a href="/Coordinator/ViewClaimDetails/101" class="btn btn-info">View</a>
-            </td>
-        </tr>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var claim in Model)
+            {
+                <tr>
+                    <td>@claim.ClaimId</td>
+                    <td>@claim.LecturerName</td>
+                    <td>@claim.Month</td>
+                    <td>@claim.TotalHours</td>
+                    <td>@claim.TotalAmount.ToString("C")</td>
+                    <td>@claim.Status</td>
+                    <td>
+                        <a asp-action="ViewClaimDetails" asp-route-id="@claim.ClaimId" class="btn btn-info btn-sm">View</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="7" class="text-center text-muted">No pending claims.</td>
+            </tr>
+        }
     </tbody>
 </table>

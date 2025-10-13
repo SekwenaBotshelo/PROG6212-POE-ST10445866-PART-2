@@ -1,27 +1,51 @@
-﻿@{
-    ViewData["Title"] = "Approve Claims";
+﻿@model List<PROG6212_POE.Models.Claim>
+@{
+    ViewData["Title"] = "Approve Pending Claims";
 }
-<h2>Approve Claims</h2>
 
-<table class="table">
+<h2>@ViewData["Title"]</h2>
+
+<table class="table table-striped mt-3">
     <thead>
         <tr>
             <th>Claim ID</th>
             <th>Lecturer</th>
             <th>Month</th>
+            <th>Total Hours</th>
             <th>Status</th>
-            <th>Action</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-        <tr>
-            <td>102</td>
-            <td>Prof. Green</td>
-            <td>August 2025</td>
-            <td>Verified</td>
-            <td>
-                <a href="/Manager/ViewClaimDetails/102" class="btn btn-info">View</a>
-            </td>
-        </tr>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var claim in Model)
+            {
+                <tr>
+                    <td>@claim.ClaimId</td>
+                    <td>@claim.LecturerName</td>
+                    <td>@claim.Month</td>
+                    <td>@claim.TotalHours</td>
+                    <td>@claim.Status</td>
+                    <td>
+                        <form asp-action="Approve" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@claim.ClaimId" />
+                            <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                        </form>
+                        <form asp-action="Reject" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@claim.ClaimId" />
+                            <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                        </form>
+                        <a asp-action="ViewClaimDetails" asp-route-id="@claim.ClaimId" class="btn btn-info btn-sm">View</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="6" class="text-center text-muted">No pending claims.</td>
+            </tr>
+        }
     </tbody>
 </table>

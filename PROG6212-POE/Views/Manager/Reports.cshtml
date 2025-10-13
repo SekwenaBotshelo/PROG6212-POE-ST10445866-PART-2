@@ -1,6 +1,8 @@
-﻿@{
+﻿@model List<PROG6212_POE.Models.Claim>
+@{
     ViewData["Title"] = "Reports";
 }
+
 <h2>Monthly Claims Report</h2>
 
 <table class="table">
@@ -13,17 +15,23 @@
         </tr>
     </thead>
     <tbody>
-        <tr>
-            <td>Dr. Adams</td>
-            <td>August 2025</td>
-            <td>40</td>
-            <td>Approved</td>
-        </tr>
-        <tr>
-            <td>Prof. Green</td>
-            <td>August 2025</td>
-            <td>36</td>
-            <td>Approved</td>
-        </tr>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var claim in Model)
+            {
+                <tr>
+                    <td>@claim.LecturerName</td>
+                    <td>@claim.Month</td>
+                    <td>@claim.TotalHours</td>
+                    <td>@claim.Status</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="4" class="text-center text-muted">No claims available.</td>
+            </tr>
+        }
     </tbody>
 </table>

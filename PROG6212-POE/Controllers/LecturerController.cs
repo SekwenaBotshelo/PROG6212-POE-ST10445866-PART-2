@@ -3,18 +3,20 @@ using PROG6212_POE.Models;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using System.IO;
+using System.Linq;
 
 namespace PROG6212_POE.Controllers
 {
     public class LecturerController : Controller
     {
-        private static List<Claim> _claims = new List<Claim>();
-        private static int _nextClaimId = 101; // starting ClaimId
+        // Shared claim list for all roles
+        public static List<Claim> ClaimsList = new List<Claim>();
+        private static int _nextClaimId = 101;
 
         // Dashboard shows all claims
         public IActionResult Dashboard()
         {
-            return View(_claims);
+            return View(ClaimsList);
         }
 
         // GET: SubmitClaim form
@@ -30,7 +32,8 @@ namespace PROG6212_POE.Controllers
             if (ModelState.IsValid)
             {
                 claim.ClaimId = _nextClaimId++;
-                _claims.Add(claim);
+                claim.Status = "Pending Verification"; // default
+                ClaimsList.Add(claim);
 
                 TempData["SuccessMessage"] = "Claim submitted successfully!";
                 return RedirectToAction("Dashboard");
@@ -42,7 +45,7 @@ namespace PROG6212_POE.Controllers
         // View Submitted Claims
         public IActionResult TrackClaim()
         {
-            return View("TrackStatus", _claims);
+            return View("TrackStatus", ClaimsList);
         }
 
         // GET: Upload Supporting Documents
@@ -57,7 +60,6 @@ namespace PROG6212_POE.Controllers
         {
             if (supportingFile != null && supportingFile.Length > 0)
             {
-                // Only allow txt files
                 var allowedExtensions = new[] { ".txt" };
                 var extension = Path.GetExtension(supportingFile.FileName);
 
@@ -67,7 +69,6 @@ namespace PROG6212_POE.Controllers
                     return View("UploadDocument");
                 }
 
-                // Save to wwwroot/uploads (make sure this folder exists)
                 var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
                 if (!Directory.Exists(uploadsPath))
                     Directory.CreateDirectory(uploadsPath);

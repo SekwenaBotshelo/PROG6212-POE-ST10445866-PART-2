@@ -1,6 +1,6 @@
 ﻿@model PROG6212_POE.Models.Claim
 @{
-    ViewData["Title"] = "Claim Details";
+    ViewData["Title"] = "Manager Claim Details";
 }
 
 <h2>Claim Details - ID: @Model.ClaimId</h2>
@@ -13,9 +13,9 @@
 <p><strong>Status:</strong> @Model.Status</p>
 <p><strong>Notes:</strong> @Model.Notes</p>
 
-<form asp-action="Verify" method="post" class="d-inline">
+<form asp-action="Approve" method="post" class="d-inline">
     <input type="hidden" name="id" value="@Model.ClaimId" />
-    <button type="submit" class="btn btn-success">Verify</button>
+    <button type="submit" class="btn btn-success">Approve</button>
 </form>
 
 <form asp-action="Reject" method="post" class="d-inline ms-2">
@@ -23,4 +23,4 @@
     <button type="submit" class="btn btn-danger">Reject</button>
 </form>
 
-<a asp-action="VerifyClaims" class="btn btn-secondary ms-2">Back to Pending Claims</a>
+<a asp-action="ApproveClaims" class="btn btn-secondary ms-2">Back to Pending Claims</a>
