@@ -39,40 +39,76 @@ Architecture Overview
 The application follows a Model-View-Controller (MVC) architecture pattern with clear separation of concerns:
 
 PROG6212-POE/
+
 ├── Controllers/
+
 │   ├── HomeController.cs          # Main navigation controller
+
 │   ├── LecturerController.cs      # Lecturer-specific functionality
+
 │   ├── CoordinatorController.cs   # Coordinator verification features
+
 │   └── ManagerController.cs       # Manager approval and reporting
+
 ├── Models/
+
 │   ├── Claim.cs                   # Main claim data model
+
 │   ├── ClaimStatus.cs            # Status enumeration
+
 │   └── ErrorViewModel.cs         # Error handling model
+
 ├── Views/
+
 │   ├── Home/                     # Public pages
+
 │   │   ├── Index.cshtml
+
 │   │   ├── About.cshtml
+
 │   │   ├── Contact.cshtml
+
 │   │   └── Privacy.cshtml
+
 │   ├── Lecturer/                 # Lecturer interface
+
 │   │   ├── Dashboard.cshtml
+
 │   │   ├── SubmitClaim.cshtml
+
 │   │   ├── TrackStatus.cshtml
+
 │   │   └── UploadDocument.cshtml
+
 │   ├── Coordinator/              # Coordinator interface
+
 │   │   ├── Dashboard.cshtml
+
 │   │   ├── VerifyClaims.cshtml
+
 │   │   ├── VerifyClaimDetails.cshtml
+
 │   │   └── Reports.cshtml
+
 │   └── Manager/                  # Manager interface
+
 │       ├── Dashboard.cshtml
+
 │       ├── ApproveClaims.cshtml
+
 │       ├── ApproveClaimDetails.cshtml
+
 │       └── Reports.cshtml
+
 ├── Tests/                        # xUnit test project
+
 │   ├── CoordinatorControllerTests.cs
+
 │   ├── LecturerControllerTests.cs
+
 │   └── ManagerControllerTests.cs
+
 └── Program.cs                    # Application entry point
+
 
 Bibliography
