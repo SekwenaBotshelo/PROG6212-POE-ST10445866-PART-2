@@ -1,6 +1,4 @@
 # PROG6212-POE
-Student Information
-
 Student Name: Botshelo Koketso Sekwena
 
 Student Number: ST10445866
