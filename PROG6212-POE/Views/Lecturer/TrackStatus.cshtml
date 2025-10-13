@@ -15,6 +15,8 @@
             <th>Hourly Rate</th>
             <th>Total Amount</th>
             <th>Status</th>
+            <th>Progress</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -29,14 +31,46 @@
                     <td>@claim.TotalHours</td>
                     <td>R @claim.HourlyRate</td>
                     <td>R @claim.TotalAmount</td>
-                    <td>@claim.Status</td>
+                    <td>
+                        @switch(claim.Status)
+                        {
+                            case "Pending Verification":
+                                <span class="badge bg-warning">@claim.Status</span>
+                                break;
+                            case "Verified":
+                                <span class="badge bg-info">@claim.Status</span>
+                                break;
+                            case "Approved":
+                                <span class="badge bg-success">@claim.Status</span>
+                                break;
+                            case "Rejected":
+                                <span class="badge bg-danger">@claim.Status</span>
+                                break;
+                            default:
+                                <span class="badge bg-secondary">@claim.Status</span>
+                                break;
+                        }
+                    </td>
+                    <td>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar" role="progressbar" style="width:@(claim.Status=="Pending Verification"?33:(claim.Status=="Verified"?66:(claim.Status=="Approved"?100:(claim.Status=="Rejected"?100:0))))%;"
+                                 class="@(claim.Status=="Rejected"?"bg-danger":(claim.Status=="Approved"?"bg-success":"bg-info"))">
+                                @claim.Status
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <a asp-action="UploadDocuments" asp-route-claimId="@claim.ClaimId" class="btn btn-primary btn-sm">
+                            Upload Supporting Documents
+                        </a>
+                    </td>
                 </tr>
             }
         }
         else
         {
             <tr>
-                <td colspan="7" class="text-center text-muted">No claims submitted yet.</td>
+                <td colspan="9" class="text-center text-muted">No claims submitted yet.</td>
             </tr>
         }
     </tbody>

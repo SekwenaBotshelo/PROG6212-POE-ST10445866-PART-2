@@ -46,7 +46,7 @@ namespace PROG6212_POE.Controllers
             var claim = ClaimsList.FirstOrDefault(c => c.ClaimId == id);
             if (claim != null)
             {
-                claim.Status = "Approved"; // Manager approves
+                claim.Status = ClaimStatus.Approved; // Manager approves
             }
             return RedirectToAction("ApproveClaims");
         }
@@ -58,7 +58,7 @@ namespace PROG6212_POE.Controllers
             var claim = ClaimsList.FirstOrDefault(c => c.ClaimId == id);
             if (claim != null)
             {
-                claim.Status = "Rejected";
+                claim.Status = ClaimStatus.Rejected;
             }
             return RedirectToAction("ApproveClaims");
         }

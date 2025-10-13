@@ -44,7 +44,7 @@ namespace PROG6212_POE.Controllers
             var claim = ClaimsList.FirstOrDefault(c => c.ClaimId == id);
             if (claim != null)
             {
-                claim.Status = "Verified"; // Coordinator approves
+                claim.Status = ClaimStatus.Verified; // Coordinator approves
             }
             return RedirectToAction("VerifyClaims");
         }
@@ -56,7 +56,7 @@ namespace PROG6212_POE.Controllers
             var claim = ClaimsList.FirstOrDefault(c => c.ClaimId == id);
             if (claim != null)
             {
-                claim.Status = "Rejected";
+                claim.Status = ClaimStatus.Rejected;
             }
             return RedirectToAction("VerifyClaims");
         }
