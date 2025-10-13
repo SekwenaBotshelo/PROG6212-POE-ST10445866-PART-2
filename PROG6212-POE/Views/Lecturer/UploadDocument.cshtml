@@ -4,10 +4,19 @@
 
 <h2>Upload Supporting Document</h2>
 
-<form enctype="multipart/form-data">
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+<form asp-action="UploadDocuments" method="post" enctype="multipart/form-data">
     <div class="form-group mb-3">
         <label for="supportingFile">Select File</label>
-        <input type="file" id="supportingFile" class="form-control" />
+        <input type="file" name="supportingFile" id="supportingFile" class="form-control" />
     </div>
     <button type="submit" class="btn btn-primary">Upload</button>
 </form>

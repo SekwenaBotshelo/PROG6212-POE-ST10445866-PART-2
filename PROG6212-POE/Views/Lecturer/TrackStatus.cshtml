@@ -1,4 +1,5 @@
-﻿@{
+﻿@model List<PROG6212_POE.Models.Claim>
+@{
     ViewData["Title"] = "Track Claim Status";
 }
 
@@ -8,20 +9,35 @@
     <thead>
         <tr>
             <th>Claim ID</th>
+            <th>Lecturer</th>
             <th>Month</th>
+            <th>Total Hours</th>
+            <th>Hourly Rate</th>
+            <th>Total Amount</th>
             <th>Status</th>
         </tr>
     </thead>
     <tbody>
-        <tr>
-            <td>101</td>
-            <td>August 2025</td>
-            <td>Pending Verification</td>
-        </tr>
-        <tr>
-            <td>102</td>
-            <td>August 2025</td>
-            <td>Verified</td>
-        </tr>
+        @if (Model != null && Model.Any())
+        {
+            foreach (var claim in Model)
+            {
+                <tr>
+                    <td>@claim.ClaimId</td>
+                    <td>@claim.LecturerName</td>
+                    <td>@claim.Month</td>
+                    <td>@claim.TotalHours</td>
+                    <td>R @claim.HourlyRate</td>
+                    <td>R @claim.TotalAmount</td>
+                    <td>@claim.Status</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="7" class="text-center text-muted">No claims submitted yet.</td>
+            </tr>
+        }
     </tbody>
 </table>
