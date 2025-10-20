@@ -5,6 +5,10 @@ Student Number: ST10445866
 
 GitHub Repository: https://github.com/SekwenaBotshelo/PROG6212-POE-ST10445866-PART-2.git
 
+👨‍🏫 Lecturer Feedback Implementation
+
+I have noted no feedback from the Lecturer but such has been noted in my Word Document Submission with a screenshot.
+
 🚀 Project Description
 
 The Claims Management System is a comprehensive web application designed to streamline the process of managing academic claims within an educational institution. The system provides distinct interfaces for Lecturers, Coordinators, and Managers to handle claim submission, verification, approval, and reporting.
