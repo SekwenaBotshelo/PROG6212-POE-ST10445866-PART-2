@@ -27,5 +27,7 @@ namespace PROG6212_POE.Models
         public double TotalAmount => TotalHours * HourlyRate;
 
         public List<string> UploadedFiles { get; set; } = new List<string>();
+
+        public List<Document> SupportingDocuments { get; set; } = new List<Document>();
     }
 }

@@ -1,39 +1,46 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PROG6212_POE.Models;
-using System.Collections.Generic;
+using PROG6212_POE.Data;
 using System.Linq;
 
 namespace PROG6212_POE.Controllers
 {
     public class CoordinatorController : Controller
     {
-        // Shared claims from LecturerController
-        private static List<Claim> ClaimsList = LecturerController.ClaimsList;
+        private readonly AppDbContext _context;
+
+        public CoordinatorController(AppDbContext context)
+        {
+            _context = context;
+        }
 
         // Dashboard with summary cards
         public IActionResult Dashboard()
         {
-            ViewBag.PendingCount = ClaimsList.Count(c => c.Status == "Pending Verification");
-            ViewBag.VerifiedCount = ClaimsList.Count(c => c.Status == "Verified");
-            ViewBag.TotalCount = ClaimsList.Count;
+            var claims = _context.Claims.ToList();
 
-            return View(ClaimsList);
+            ViewBag.PendingCount = claims.Count(c => c.Status == ClaimStatus.Pending);
+            ViewBag.VerifiedCount = claims.Count(c => c.Status == ClaimStatus.Verified);
+            ViewBag.TotalCount = claims.Count;
+
+            return View(claims);
         }
 
         // Show pending claims for verification
         public IActionResult VerifyClaims()
         {
-            var pendingClaims = ClaimsList.Where(c => c.Status == "Pending Verification").ToList();
+            var pendingClaims = _context.Claims
+                                        .Where(c => c.Status == ClaimStatus.Pending)
+                                        .ToList();
             return View(pendingClaims);
         }
 
         // Show claim details for verification
         public IActionResult ViewClaimDetails(int id)
         {
-            var claim = ClaimsList.FirstOrDefault(c => c.ClaimId == id);
+            var claim = _context.Claims.FirstOrDefault(c => c.ClaimId == id);
             if (claim == null) return NotFound();
 
-            // Explicitly specify the view name since it differs
             return View("VerifyClaimDetails", claim);
         }
 
@@ -41,10 +48,11 @@ namespace PROG6212_POE.Controllers
         [HttpPost]
         public IActionResult Verify(int id)
         {
-            var claim = ClaimsList.FirstOrDefault(c => c.ClaimId == id);
+            var claim = _context.Claims.FirstOrDefault(c => c.ClaimId == id);
             if (claim != null)
             {
-                claim.Status = ClaimStatus.Verified; // Coordinator approves
+                claim.Status = ClaimStatus.Verified;
+                _context.SaveChanges();
             }
             return RedirectToAction("VerifyClaims");
         }
@@ -53,19 +61,19 @@ namespace PROG6212_POE.Controllers
         [HttpPost]
         public IActionResult Reject(int id)
         {
-            var claim = ClaimsList.FirstOrDefault(c => c.ClaimId == id);
+            var claim = _context.Claims.FirstOrDefault(c => c.ClaimId == id);
             if (claim != null)
             {
                 claim.Status = ClaimStatus.Rejected;
+                _context.SaveChanges();
             }
             return RedirectToAction("VerifyClaims");
         }
 
-        // Reports page for Coordinator
+        // Reports page
         public IActionResult Reports()
         {
-            // Pass all claims to the view (can later filter by month or status)
-            var allClaims = ClaimsList;
+            var allClaims = _context.Claims.ToList();
             return View(allClaims);
         }
     }

@@ -1,41 +1,48 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PROG6212_POE.Models;
-using System.Collections.Generic;
+using PROG6212_POE.Data;
 using System.Linq;
 
 namespace PROG6212_POE.Controllers
 {
     public class ManagerController : Controller
     {
-        // Shared claims from LecturerController
-        private static List<Claim> ClaimsList = LecturerController.ClaimsList;
+        private readonly AppDbContext _context;
+
+        public ManagerController(AppDbContext context)
+        {
+            _context = context;
+        }
 
         // Dashboard with summary cards
         public IActionResult Dashboard()
         {
-            ViewBag.PendingCount = ClaimsList.Count(c => c.Status == "Pending Verification");
-            ViewBag.VerifiedCount = ClaimsList.Count(c => c.Status == "Verified");
-            ViewBag.ApprovedCount = ClaimsList.Count(c => c.Status == "Approved");
-            ViewBag.RejectedCount = ClaimsList.Count(c => c.Status == "Rejected");
-            ViewBag.TotalCount = ClaimsList.Count;
+            var claims = _context.Claims.ToList();
 
-            return View(ClaimsList);
+            ViewBag.PendingCount = claims.Count(c => c.Status == ClaimStatus.Pending);
+            ViewBag.VerifiedCount = claims.Count(c => c.Status == ClaimStatus.Verified);
+            ViewBag.ApprovedCount = claims.Count(c => c.Status == ClaimStatus.Approved);
+            ViewBag.RejectedCount = claims.Count(c => c.Status == ClaimStatus.Rejected);
+            ViewBag.TotalCount = claims.Count;
+
+            return View(claims);
         }
 
         // Show verified claims for manager approval
         public IActionResult ApproveClaims()
         {
-            var verifiedClaims = ClaimsList.Where(c => c.Status == "Verified").ToList();
+            var verifiedClaims = _context.Claims
+                                         .Where(c => c.Status == ClaimStatus.Verified)
+                                         .ToList();
             return View(verifiedClaims);
         }
 
-        // Show details for manager approval
+        // Show claim details for approval
         public IActionResult ViewClaimDetails(int id)
         {
-            var claim = ClaimsList.FirstOrDefault(c => c.ClaimId == id);
+            var claim = _context.Claims.FirstOrDefault(c => c.ClaimId == id);
             if (claim == null) return NotFound();
 
-            // Explicitly specify view since it differs
             return View("ApproveClaimDetails", claim);
         }
 
@@ -43,10 +50,11 @@ namespace PROG6212_POE.Controllers
         [HttpPost]
         public IActionResult Approve(int id)
         {
-            var claim = ClaimsList.FirstOrDefault(c => c.ClaimId == id);
+            var claim = _context.Claims.FirstOrDefault(c => c.ClaimId == id);
             if (claim != null)
             {
-                claim.Status = ClaimStatus.Approved; // Manager approves
+                claim.Status = ClaimStatus.Approved;
+                _context.SaveChanges();
             }
             return RedirectToAction("ApproveClaims");
         }
@@ -55,10 +63,11 @@ namespace PROG6212_POE.Controllers
         [HttpPost]
         public IActionResult Reject(int id)
         {
-            var claim = ClaimsList.FirstOrDefault(c => c.ClaimId == id);
+            var claim = _context.Claims.FirstOrDefault(c => c.ClaimId == id);
             if (claim != null)
             {
                 claim.Status = ClaimStatus.Rejected;
+                _context.SaveChanges();
             }
             return RedirectToAction("ApproveClaims");
         }
@@ -66,8 +75,7 @@ namespace PROG6212_POE.Controllers
         // Reports page
         public IActionResult Reports()
         {
-            // Pass all claims to the view (can later filter by month or status)
-            var allClaims = ClaimsList;
+            var allClaims = _context.Claims.ToList();
             return View(allClaims);
         }
     }

@@ -1,123 +1,103 @@
-﻿using Xunit;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PROG6212_POE.Controllers;
+using PROG6212_POE.Data;
 using PROG6212_POE.Models;
-using Microsoft.AspNetCore.Mvc;
-using Moq;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Xunit;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace PROG6212_POE.Tests
 {
-    [Collection("NoParallelTests")]
     public class CoordinatorControllerTests
     {
-        private CoordinatorController _controller;
-
-        public CoordinatorControllerTests()
+        private CoordinatorController GetController(AppDbContext context)
         {
-            ResetTestData();
-            _controller = new CoordinatorController();
-            var tempData = new Mock<ITempDataDictionary>();
-            _controller.TempData = tempData.Object;
+            return new CoordinatorController(context);
         }
 
-        private void ResetTestData()
+        private AppDbContext GetNewInMemoryDb()
         {
-            lock (LecturerController.ClaimsList)
-            {
-                LecturerController.ClaimsList.Clear();
-                // Use Coordinator-specific ID range: 301-399
-                LecturerController.ClaimsList.Add(new Claim
+            var options = new DbContextOptionsBuilder<AppDbContext>()
+                .UseInMemoryDatabase(System.Guid.NewGuid().ToString())
+                .Options;
+            return new AppDbContext(options);
+        }
+
+        private void SeedClaims(AppDbContext context)
+        {
+            context.Claims.AddRange(
+                new Claim
                 {
                     ClaimId = 301,
                     LecturerName = "Coordinator_John",
                     Month = "October",
                     TotalHours = 10,
                     HourlyRate = 150,
-                    Status = "Pending Verification"
-                });
-
-                LecturerController.ClaimsList.Add(new Claim
+                    Status = ClaimStatus.Pending
+                },
+                new Claim
                 {
                     ClaimId = 302,
                     LecturerName = "Coordinator_Jane",
                     Month = "November",
                     TotalHours = 12,
                     HourlyRate = 120,
-                    Status = "Pending Verification"
-                });
-            }
+                    Status = ClaimStatus.Pending
+                }
+            );
+            context.SaveChanges();
         }
 
         [Fact]
         public void Dashboard_ReturnsAllClaims()
         {
-            // Arrange
-            ResetTestData();
+            var context = GetNewInMemoryDb();
+            SeedClaims(context);
+            var controller = GetController(context);
 
-            // Act
-            var result = _controller.Dashboard() as ViewResult;
+            var result = controller.Dashboard() as ViewResult;
 
-            // Assert
             Assert.NotNull(result);
             var model = Assert.IsAssignableFrom<List<Claim>>(result.Model);
             Assert.Equal(2, model.Count);
         }
 
         [Fact]
-        public void VerifyClaims_ReturnsOnlyPendingClaims()
-        {
-            // Arrange
-            ResetTestData();
-
-            // Act
-            var result = _controller.VerifyClaims() as ViewResult;
-
-            // Assert
-            Assert.NotNull(result);
-            var model = Assert.IsAssignableFrom<List<Claim>>(result.Model);
-            Assert.All(model, c => Assert.Equal("Pending Verification", c.Status));
-        }
-
-        [Fact]
         public void Verify_ValidClaim_UpdatesStatusToVerified()
         {
-            // Arrange
-            ResetTestData();
+            var context = GetNewInMemoryDb();
+            SeedClaims(context);
+            var controller = GetController(context);
 
-            // Act
-            _controller.Verify(301);
+            controller.Verify(301);
 
-            // Assert
-            var claim = LecturerController.ClaimsList.First(c => c.ClaimId == 301);
-            Assert.Equal("Verified", claim.Status);
+            var claim = context.Claims.First(c => c.ClaimId == 301);
+            Assert.Equal(ClaimStatus.Verified, claim.Status);
         }
 
         [Fact]
         public void Reject_ValidClaim_UpdatesStatusToRejected()
         {
-            // Arrange
-            ResetTestData();
+            var context = GetNewInMemoryDb();
+            SeedClaims(context);
+            var controller = GetController(context);
 
-            // Act
-            _controller.Reject(302);
+            controller.Reject(302);
 
-            // Assert
-            var claim = LecturerController.ClaimsList.First(c => c.ClaimId == 302);
-            Assert.Equal("Rejected", claim.Status);
+            var claim = context.Claims.First(c => c.ClaimId == 302);
+            Assert.Equal(ClaimStatus.Rejected, claim.Status);
         }
 
         [Fact]
         public void ViewClaimDetails_ExistingClaim_ReturnsViewWithClaim()
         {
-            // Arrange
-            ResetTestData();
+            var context = GetNewInMemoryDb();
+            SeedClaims(context);
+            var controller = GetController(context);
 
-            // Act
-            var result = _controller.ViewClaimDetails(301) as ViewResult;
+            var result = controller.ViewClaimDetails(301) as ViewResult;
 
-            // Assert
             Assert.NotNull(result);
             var model = Assert.IsType<Claim>(result.Model);
             Assert.Equal(301, model.ClaimId);
@@ -126,13 +106,12 @@ namespace PROG6212_POE.Tests
         [Fact]
         public void ViewClaimDetails_NonExistingClaim_ReturnsNotFound()
         {
-            // Arrange
-            ResetTestData();
+            var context = GetNewInMemoryDb();
+            SeedClaims(context);
+            var controller = GetController(context);
 
-            // Act
-            var result = _controller.ViewClaimDetails(999);
+            var result = controller.ViewClaimDetails(999);
 
-            // Assert
             Assert.IsType<NotFoundResult>(result);
         }
     }

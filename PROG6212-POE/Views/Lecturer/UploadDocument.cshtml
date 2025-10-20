@@ -1,41 +1,47 @@
 ﻿@model PROG6212_POE.Models.Claim
-
 @{
     ViewData["Title"] = "Upload Supporting Document";
 }
 
-<h2>Upload Supporting Document for Claim ID: @Model.ClaimId</h2>
+<div class="container mt-4">
+    <h1 class="mb-4 text-center">Upload Supporting Document for Claim ID: @Model.ClaimId</h1>
 
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
-}
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-}
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success text-center">@TempData["SuccessMessage"]</div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger text-center">@TempData["ErrorMessage"]</div>
+    }
 
-<form asp-action="UploadDocuments" method="post" enctype="multipart/form-data">
-    <input type="hidden" name="claimId" value="@Model.ClaimId" />
+    <form asp-action="UploadDocuments" method="post" enctype="multipart/form-data">
+        <input type="hidden" name="claimId" value="@Model.ClaimId" />
 
-    <div class="form-group mb-3">
-        <label for="supportingFile">Select File</label>
-        <input type="file" name="supportingFile" id="supportingFile" class="form-control" />
-        <small class="form-text text-muted">Allowed formats: .pdf, .docx, .xlsx</small>
-    </div>
+        <div class="form-group mb-3">
+            <label for="supportingFile">Select File</label>
+            <input type="file" name="supportingFile" id="supportingFile" class="form-control" />
+            <small class="form-text text-muted">Allowed formats: .pdf, .docx, .xlsx</small>
+        </div>
 
-    <button type="submit" class="btn btn-primary">Upload</button>
-</form>
+        <button type="submit" class="btn btn-primary">Upload</button>
+        <a asp-action="Dashboard" class="btn btn-secondary ms-2">Back to Dashboard</a>
+    </form>
 
-@if (Model.UploadedFiles.Any())
-{
-    <h4 class="mt-4">Uploaded Files</h4>
-    <ul>
-        @foreach (var file in Model.UploadedFiles)
-        {
-            <li>@file</li>
-        }
-    </ul>
-}
-
-<a asp-action="Dashboard" class="btn btn-secondary mt-3">Back to Dashboard</a>
+    @if (Model.SupportingDocuments != null && Model.SupportingDocuments.Any())
+    {
+        <h4 class="mt-4">Uploaded Files</h4>
+        <ul>
+            @foreach (var doc in Model.SupportingDocuments)
+            {
+                <li>
+                    <a href="@doc.FilePath" target="_blank">@doc.FileName</a>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p class="text-muted mt-2">No files uploaded yet.</p>
+    }
+</div>

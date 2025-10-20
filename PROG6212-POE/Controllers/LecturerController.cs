@@ -1,39 +1,46 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PROG6212_POE.Models;
+using PROG6212_POE.Data;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.Linq;
-using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
 namespace PROG6212_POE.Controllers
 {
     public class LecturerController : Controller
     {
-        // Shared claim list for all roles
-        public static List<Claim> ClaimsList = new List<Claim>();
-        private static int _nextClaimId = 101;
+        private readonly AppDbContext _context;
 
-        // Dashboard shows all claims
-        public IActionResult Dashboard()
+        public LecturerController(AppDbContext context)
         {
-            return View(ClaimsList);
+            _context = context;
         }
 
-        // GET: SubmitClaim form
+        // Dashboard shows all claims with documents
+        public IActionResult Dashboard()
+        {
+            var claims = _context.Claims
+                                 .Include(c => c.SupportingDocuments)
+                                 .ToList();
+            return View(claims);
+        }
+
+        // GET: Submit a new claim
         public IActionResult SubmitClaim()
         {
             return View(new Claim());
         }
 
-        // POST: SubmitClaim form
+        // POST: Submit claim
         [HttpPost]
         public IActionResult SubmitClaim(Claim claim)
         {
             if (ModelState.IsValid)
             {
-                claim.ClaimId = _nextClaimId++;
-                claim.Status = "Pending Verification"; // default
-                ClaimsList.Add(claim);
+                claim.Status = ClaimStatus.Pending;
+                _context.Claims.Add(claim);
+                _context.SaveChanges();
 
                 TempData["SuccessMessage"] = "Claim submitted successfully!";
                 return RedirectToAction("Dashboard");
@@ -42,41 +49,37 @@ namespace PROG6212_POE.Controllers
             return View(claim);
         }
 
-        // View Submitted Claims
+        // View submitted claims (Track Status)
         public IActionResult TrackClaim()
         {
-            return View("TrackStatus", ClaimsList);
+            var claims = _context.Claims
+                                 .Include(c => c.SupportingDocuments)
+                                 .ToList();
+            return View("TrackStatus", claims);
         }
 
-        // GET: Upload Supporting Documents
+        // GET: Upload document for a claim
         public IActionResult UploadDocuments(int? claimId)
         {
-            if (claimId == null)
-            {
-                TempData["ErrorMessage"] = "Claim ID is required to upload a document.";
-                return RedirectToAction("Dashboard");
-            }
+            if (claimId == null) return RedirectToAction("Dashboard");
 
-            var claim = ClaimsList.FirstOrDefault(c => c.ClaimId == claimId);
-            if (claim == null)
-            {
-                TempData["ErrorMessage"] = "Claim not found.";
-                return RedirectToAction("Dashboard");
-            }
+            var claim = _context.Claims
+                                .Include(c => c.SupportingDocuments)
+                                .FirstOrDefault(c => c.ClaimId == claimId);
+
+            if (claim == null) return RedirectToAction("Dashboard");
 
             return View("UploadDocument", claim);
         }
 
-        // POST: Upload Supporting Documents
+        // POST: Upload supporting document
         [HttpPost]
         public IActionResult UploadDocuments(int claimId, IFormFile supportingFile)
         {
-            var claim = ClaimsList.FirstOrDefault(c => c.ClaimId == claimId);
-            if (claim == null)
-            {
-                TempData["ErrorMessage"] = "Claim not found.";
-                return RedirectToAction("Dashboard");
-            }
+            var claim = _context.Claims
+                                .Include(c => c.SupportingDocuments)
+                                .FirstOrDefault(c => c.ClaimId == claimId);
+            if (claim == null) return RedirectToAction("Dashboard");
 
             if (supportingFile != null && supportingFile.Length > 0)
             {
@@ -86,7 +89,7 @@ namespace PROG6212_POE.Controllers
                 if (!allowedExtensions.Contains(extension))
                 {
                     TempData["ErrorMessage"] = "Only .pdf, .docx, and .xlsx files are allowed.";
-                    return View("UploadDocument", claim);
+                    return RedirectToAction("Dashboard");
                 }
 
                 var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
@@ -101,13 +104,25 @@ namespace PROG6212_POE.Controllers
                     supportingFile.CopyTo(stream);
                 }
 
-                claim.UploadedFiles.Add(uniqueFileName);
+                // Save document to database
+                var doc = new Document
+                {
+                    FileName = supportingFile.FileName,
+                    FilePath = $"/uploads/{uniqueFileName}",
+                    ClaimId = claim.ClaimId
+                };
+
+                _context.Documents.Add(doc);
+                _context.SaveChanges();
+
                 TempData["SuccessMessage"] = $"File '{supportingFile.FileName}' uploaded successfully!";
-                return View("UploadDocument", claim);
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Please select a file to upload.";
             }
 
-            TempData["ErrorMessage"] = "Please select a file to upload.";
-            return View("UploadDocument", claim);
+            return RedirectToAction("Dashboard");
         }
     }
 }
