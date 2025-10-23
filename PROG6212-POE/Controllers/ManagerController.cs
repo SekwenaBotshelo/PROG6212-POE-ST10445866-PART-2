@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PROG6212_POE.Models;
 using PROG6212_POE.Data;
+using PROG6212_POE.Models;
+using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace PROG6212_POE.Controllers
 {
@@ -40,22 +42,33 @@ namespace PROG6212_POE.Controllers
         // Show claim details for approval
         public IActionResult ViewClaimDetails(int id)
         {
-            var claim = _context.Claims.FirstOrDefault(c => c.ClaimId == id);
+            var claim = _context.Claims
+                                .Include(c => c.SupportingDocuments)
+                                .FirstOrDefault(c => c.ClaimId == id);
             if (claim == null) return NotFound();
 
             return View("ApproveClaimDetails", claim);
         }
 
-        // POST: Approve a claim
+        // POST: Approve a claim (automated rules)
         [HttpPost]
         public IActionResult Approve(int id)
         {
             var claim = _context.Claims.FirstOrDefault(c => c.ClaimId == id);
             if (claim != null)
             {
-                claim.Status = ClaimStatus.Approved;
+                // Automated approval rule (example: TotalAmount < 5000 auto-approve)
+                if (claim.TotalAmount <= 5000)
+                    claim.Status = ClaimStatus.Approved;
+                else
+                    claim.Status = ClaimStatus.Verified; // Keep for manual review if needed
+
                 _context.SaveChanges();
+
+                // Audit Trail logging
+                LogAudit($"Claim {(claim.Status == ClaimStatus.Approved ? "approved" : "kept for review")} for {claim.LecturerName} (Claim ID: {claim.ClaimId})", "Manager");
             }
+
             return RedirectToAction("ApproveClaims");
         }
 
@@ -68,15 +81,37 @@ namespace PROG6212_POE.Controllers
             {
                 claim.Status = ClaimStatus.Rejected;
                 _context.SaveChanges();
+
+                // Audit Trail logging
+                LogAudit($"Claim rejected for {claim.LecturerName} (Claim ID: {claim.ClaimId})", "Manager");
             }
+
             return RedirectToAction("ApproveClaims");
         }
 
         // Reports page
         public IActionResult Reports()
         {
-            var allClaims = _context.Claims.ToList();
+            var allClaims = _context.Claims
+                                    .Include(c => c.SupportingDocuments)
+                                    .ToList();
+
+            // Log report generation
+            LogAudit("Manager generated claims report", "Manager");
+
             return View(allClaims);
+        }
+
+        // Private helper for audit logging
+        private void LogAudit(string action, string userName)
+        {
+            _context.AuditTrails.Add(new AuditTrail
+            {
+                Action = action,
+                Timestamp = DateTime.Now,
+                UserName = userName
+            });
+            _context.SaveChanges();
         }
     }
 }

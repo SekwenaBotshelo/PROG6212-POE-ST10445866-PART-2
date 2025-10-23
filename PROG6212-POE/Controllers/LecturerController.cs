@@ -41,6 +41,15 @@ namespace PROG6212_POE.Controllers
                 claim.Status = ClaimStatus.Pending;
                 _context.Claims.Add(claim);
                 _context.SaveChanges();
+                // implementing Audit Trati
+                _context.AuditTrails.Add(new AuditTrail
+                {
+                    Action = $"Claim submitted for {claim.LecturerName} ({claim.Month})",
+                    Timestamp = DateTime.Now,
+                    UserName = claim.LecturerName
+                });
+                _context.SaveChanges();
+
 
                 TempData["SuccessMessage"] = "Claim submitted successfully!";
                 return RedirectToAction("Dashboard");
@@ -114,6 +123,13 @@ namespace PROG6212_POE.Controllers
 
                 _context.Documents.Add(doc);
                 _context.SaveChanges();
+                _context.AuditTrails.Add(new AuditTrail
+                {
+                    Action = $"Document '{supportingFile.FileName}' uploaded for {claim.LecturerName}",
+                    Timestamp = DateTime.Now,
+                    UserName = claim.LecturerName
+                });
+                _context.SaveChanges();
 
                 TempData["SuccessMessage"] = $"File '{supportingFile.FileName}' uploaded successfully!";
             }
@@ -121,6 +137,8 @@ namespace PROG6212_POE.Controllers
             {
                 TempData["ErrorMessage"] = "Please select a file to upload.";
             }
+
+
 
             return RedirectToAction("Dashboard");
         }
