@@ -19,7 +19,9 @@ namespace PROG6212_POE.Controllers
         // Dashboard with summary cards
         public IActionResult Dashboard()
         {
-            var claims = _context.Claims.ToList();
+            var claims = _context.Claims
+                                 .Include(c => c.SupportingDocuments)
+                                 .ToList();
 
             ViewBag.PendingCount = claims.Count(c => c.Status == ClaimStatus.Pending);
             ViewBag.VerifiedCount = claims.Count(c => c.Status == ClaimStatus.Verified);

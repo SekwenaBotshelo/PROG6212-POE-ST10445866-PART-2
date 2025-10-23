@@ -3,24 +3,86 @@
     ViewData["Title"] = "Claim Details";
 }
 
-<h2>Claim Details - ID: @Model.ClaimId</h2>
+<div class="container mt-4">
+    <h2 class="mb-4">Claim Details - ID: @Model.ClaimId</h2>
 
-<p><strong>Lecturer:</strong> @Model.LecturerName</p>
-<p><strong>Month:</strong> @Model.Month</p>
-<p><strong>Total Hours:</strong> @Model.TotalHours</p>
-<p><strong>Hourly Rate:</strong> R @Model.HourlyRate</p>
-<p><strong>Total Amount:</strong> R @Model.TotalAmount</p>
-<p><strong>Status:</strong> @Model.Status</p>
-<p><strong>Notes:</strong> @Model.Notes</p>
+    <!-- Claim Info Card -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Claim Information</h5>
+            <div class="row mt-3">
+                <div class="col-md-6 mb-2">
+                    <strong>Lecturer:</strong> @Model.LecturerName
+                </div>
+                <div class="col-md-6 mb-2">
+                    <strong>Month:</strong> @Model.Month
+                </div>
+                <div class="col-md-6 mb-2">
+                    <strong>Total Hours:</strong> @Model.TotalHours
+                </div>
+                <div class="col-md-6 mb-2">
+                    <strong>Hourly Rate:</strong> R @Model.HourlyRate
+                </div>
+                <div class="col-md-6 mb-2">
+                    <strong>Total Amount:</strong> R @Model.TotalAmount
+                </div>
+                <div class="col-md-6 mb-2">
+                    <strong>Status:</strong>
+                    <span class="badge @(Model.Status switch
+                          {
+                              "Pending Verification" => "bg-warning",
+                              "Verified" => "bg-info",
+                              "Approved" => "bg-success",
+                              "Rejected" => "bg-danger",
+                              _ => "bg-secondary"
+                          })">
+                        @Model.Status
+                    </span>
+                </div>
+                <div class="col-12 mt-2">
+                    <strong>Notes:</strong> @Model.Notes
+                </div>
+            </div>
+        </div>
+    </div>
 
-<form asp-action="Verify" method="post" class="d-inline">
-    <input type="hidden" name="id" value="@Model.ClaimId" />
-    <button type="submit" class="btn btn-success">Verify</button>
-</form>
+    <!-- Supporting Documents Card -->
+    @if (Model.SupportingDocuments != null && Model.SupportingDocuments.Any())
+    {
+        <div class="card shadow-sm mb-4">
+            <div class="card-header">Supporting Documents</div>
+            <div class="card-body">
+                <ul class="list-group">
+                    @foreach (var doc in Model.SupportingDocuments)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <a href="@doc.FilePath" target="_blank">@doc.FileName</a>
+                            <span class="text-muted">@doc.UploadedOn.ToString("dd MMM yyyy")</span>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    }
 
-<form asp-action="Reject" method="post" class="d-inline ms-2">
-    <input type="hidden" name="id" value="@Model.ClaimId" />
-    <button type="submit" class="btn btn-danger">Reject</button>
-</form>
+    <!-- Action Buttons -->
+    <div class="mb-4">
+        <form asp-action="Verify" method="post" class="d-inline">
+            <input type="hidden" name="id" value="@Model.ClaimId" />
+            <button type="submit" class="btn btn-success me-2">Verify</button>
+        </form>
 
-<a asp-action="VerifyClaims" class="btn btn-secondary ms-2">Back to Pending Claims</a>
+        <form asp-action="Reject" method="post" class="d-inline">
+            <input type="hidden" name="id" value="@Model.ClaimId" />
+            <button type="submit" class="btn btn-danger me-2">Reject</button>
+        </form>
+
+        <a asp-action="VerifyClaims" class="btn btn-secondary">
+            <i class="bi bi-arrow-left-circle"></i>Back to Pending Claims
+        </a>
+
+        <a asp-action="Dashboard" class="btn btn-secondary">
+            <i class="bi bi-arrow-left-circle"></i> Back to Coordinator Dashboard
+        </a>
+    </div>
+</div>
