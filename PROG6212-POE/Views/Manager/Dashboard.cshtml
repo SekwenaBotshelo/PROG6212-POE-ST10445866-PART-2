@@ -4,6 +4,18 @@
 }
 
 <div class="container mt-4">
+
+    <!-- Guidance Card -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white">Guidance</div>
+        <div class="card-body">
+            <p>
+                Welcome, Manager! Review claims, approve or reject them, and generate reports.
+                Use the actions below to manage claims efficiently.
+            </p>
+        </div>
+    </div>
+
     <h1 class="mb-4 text-center">@ViewData["Title"]</h1>
 
     <!-- Summary cards -->
@@ -12,7 +24,7 @@
             <div class="card shadow-sm h-100 text-center">
                 <div class="card-body">
                     <h5 class="card-title">Pending Claims</h5>
-                    <p class="card-text display-6">@ViewBag.PendingCount</p>
+                    <p class="card-text display-6 text-primary">@ViewBag.PendingCount</p>
                 </div>
             </div>
         </div>
@@ -20,7 +32,7 @@
             <div class="card shadow-sm h-100 text-center">
                 <div class="card-body">
                     <h5 class="card-title">Approved Claims</h5>
-                    <p class="card-text display-6">@ViewBag.ApprovedCount</p>
+                    <p class="card-text display-6 text-success">@ViewBag.ApprovedCount</p>
                 </div>
             </div>
         </div>
@@ -28,7 +40,7 @@
             <div class="card shadow-sm h-100 text-center">
                 <div class="card-body">
                     <h5 class="card-title">Rejected Claims</h5>
-                    <p class="card-text display-6">@ViewBag.RejectedCount</p>
+                    <p class="card-text display-6 text-danger">@ViewBag.RejectedCount</p>
                 </div>
             </div>
         </div>
@@ -36,7 +48,7 @@
             <div class="card shadow-sm h-100 text-center">
                 <div class="card-body">
                     <h5 class="card-title">Total Claims</h5>
-                    <p class="card-text display-6">@ViewBag.TotalCount</p>
+                    <p class="card-text display-6 text-info">@ViewBag.TotalCount</p>
                 </div>
             </div>
         </div>
@@ -77,27 +89,20 @@
                                     <td>@claim.TotalHours</td>
                                     <td>@claim.TotalAmount.ToString("C")</td>
                                     <td>
-                                        @switch (claim.Status)
-                                        {
-                                            case "Pending Verification":
-                                                <span class="badge bg-warning">@claim.Status</span>
-                                                ; break;
-                                            case "Verified":
-                                                <span class="badge bg-info">@claim.Status</span>
-                                                ; break;
-                                            case "Approved":
-                                                <span class="badge bg-success">@claim.Status</span>
-                                                ; break;
-                                            case "Rejected":
-                                                <span class="badge bg-danger">@claim.Status</span>
-                                                ; break;
-                                        }
-                                    </td>
-                                    <td>
-                                        <a asp-action="ViewClaimDetails" asp-route-id="@claim.ClaimId" class="btn btn-info btn-sm">View</a>
-                                    </td>
-                                </tr>
-                            }
+                                        <span class="badge @(claim.Status switch
+                                              {
+                                                  "Pending Verification" => "bg-warning",
+                                                  "Verified" => "bg-info",
+                                                  "Approved" => "bg-success",
+                                                  "Rejected" => "bg-danger",
+                                                  _ => "bg-secondary"
+                                              })">@claim.Status</span>
+                            </td>
+                            <td>
+                                <a asp-action="ViewClaimDetails" asp-route-id="@claim.ClaimId" class="btn btn-info btn-sm">View</a>
+                            </td>
+                        </tr>
+                                                }
                         }
                         else
                         {

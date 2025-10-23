@@ -3,24 +3,38 @@
     ViewData["Title"] = "Manager Claim Details";
 }
 
-<h2>Claim Details - ID: @Model.ClaimId</h2>
+<div class="container mt-4">
 
-<p><strong>Lecturer:</strong> @Model.LecturerName</p>
-<p><strong>Month:</strong> @Model.Month</p>
-<p><strong>Total Hours:</strong> @Model.TotalHours</p>
-<p><strong>Hourly Rate:</strong> R @Model.HourlyRate</p>
-<p><strong>Total Amount:</strong> R @Model.TotalAmount</p>
-<p><strong>Status:</strong> @Model.Status</p>
-<p><strong>Notes:</strong> @Model.Notes</p>
+    <!-- Guidance Card -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white">Guidance</div>
+        <div class="card-body">
+            <p>
+                Review the details of the claim below. You can approve or reject the claim, or return to the pending claims list.
+            </p>
+        </div>
+    </div>
 
-<form asp-action="Approve" method="post" class="d-inline">
-    <input type="hidden" name="id" value="@Model.ClaimId" />
-    <button type="submit" class="btn btn-success">Approve</button>
-</form>
+    <h2>Claim Details - ID: @Model.ClaimId</h2>
 
-<form asp-action="Reject" method="post" class="d-inline ms-2">
-    <input type="hidden" name="id" value="@Model.ClaimId" />
-    <button type="submit" class="btn btn-danger">Reject</button>
-</form>
+    <p><strong>Lecturer:</strong> @Model.LecturerName</p>
+    <p><strong>Month:</strong> @Model.Month</p>
+    <p><strong>Total Hours:</strong> @Model.TotalHours</p>
+    <p><strong>Hourly Rate:</strong> R @Model.HourlyRate</p>
+    <p><strong>Total Amount:</strong> R @Model.TotalAmount</p>
+    <p><strong>Status:</strong> @Model.Status</p>
+    <p><strong>Notes:</strong> @Model.Notes</p>
 
-<a asp-action="ApproveClaims" class="btn btn-secondary ms-2">Back to Pending Claims</a>
+    <form asp-action="Approve" method="post" class="d-inline">
+        <input type="hidden" name="id" value="@Model.ClaimId" />
+        <button type="submit" class="btn btn-success">Approve</button>
+    </form>
+
+    <form asp-action="Reject" method="post" class="d-inline ms-2">
+        <input type="hidden" name="id" value="@Model.ClaimId" />
+        <button type="submit" class="btn btn-danger">Reject</button>
+    </form>
+
+    <a asp-action="ApproveClaims" class="btn btn-secondary ms-2">Back to Pending Claims</a>
+    <a asp-action="Dashboard" class="btn btn-secondary ms-2">Back to Manager Dashboard</a>
+</div>

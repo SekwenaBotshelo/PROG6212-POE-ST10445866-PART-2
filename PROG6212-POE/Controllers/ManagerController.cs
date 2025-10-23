@@ -16,30 +16,25 @@ namespace PROG6212_POE.Controllers
             _context = context;
         }
 
-        // Dashboard with summary cards
+        // Dashboard: Display summary cards and all claims
         public IActionResult Dashboard()
         {
             var claims = _context.Claims.ToList();
-
-            ViewBag.PendingCount = claims.Count(c => c.Status == ClaimStatus.Pending);
-            ViewBag.VerifiedCount = claims.Count(c => c.Status == ClaimStatus.Verified);
-            ViewBag.ApprovedCount = claims.Count(c => c.Status == ClaimStatus.Approved);
-            ViewBag.RejectedCount = claims.Count(c => c.Status == ClaimStatus.Rejected);
-            ViewBag.TotalCount = claims.Count;
-
+            PopulateClaimCounts(claims); // Set ViewBag counts for summary cards
             return View(claims);
         }
 
-        // Show verified claims for manager approval
+        // Approve Claims: Display claims verified by coordinator for manager approval
         public IActionResult ApproveClaims()
         {
             var verifiedClaims = _context.Claims
                                          .Where(c => c.Status == ClaimStatus.Verified)
+                                         .Include(c => c.SupportingDocuments)
                                          .ToList();
             return View(verifiedClaims);
         }
 
-        // Show claim details for approval
+        // View Claim Details: Display full details of a specific claim including supporting documents
         public IActionResult ViewClaimDetails(int id)
         {
             var claim = _context.Claims
@@ -50,14 +45,14 @@ namespace PROG6212_POE.Controllers
             return View("ApproveClaimDetails", claim);
         }
 
-        // POST: Approve a claim (automated rules)
+        // POST: Approve a claim
         [HttpPost]
         public IActionResult Approve(int id)
         {
             var claim = _context.Claims.FirstOrDefault(c => c.ClaimId == id);
             if (claim != null)
             {
-                // Automated approval rule (example: TotalAmount < 5000 auto-approve)
+                // Automated approval rule: Auto-approve if TotalAmount <= 5000
                 if (claim.TotalAmount <= 5000)
                     claim.Status = ClaimStatus.Approved;
                 else
@@ -65,7 +60,7 @@ namespace PROG6212_POE.Controllers
 
                 _context.SaveChanges();
 
-                // Audit Trail logging
+                // Log action to AuditTrail
                 LogAudit($"Claim {(claim.Status == ClaimStatus.Approved ? "approved" : "kept for review")} for {claim.LecturerName} (Claim ID: {claim.ClaimId})", "Manager");
             }
 
@@ -82,14 +77,14 @@ namespace PROG6212_POE.Controllers
                 claim.Status = ClaimStatus.Rejected;
                 _context.SaveChanges();
 
-                // Audit Trail logging
+                // Log action to AuditTrail
                 LogAudit($"Claim rejected for {claim.LecturerName} (Claim ID: {claim.ClaimId})", "Manager");
             }
 
             return RedirectToAction("ApproveClaims");
         }
 
-        // Reports page
+        // Reports: Display all claims with supporting documents for reporting purposes
         public IActionResult Reports()
         {
             var allClaims = _context.Claims
@@ -102,7 +97,19 @@ namespace PROG6212_POE.Controllers
             return View(allClaims);
         }
 
-        // Private helper for audit logging
+        // -------------------- PRIVATE HELPERS --------------------
+
+        // Helper method to populate ViewBag with claim counts for dashboard summary cards
+        private void PopulateClaimCounts(System.Collections.Generic.List<Claim> claims)
+        {
+            ViewBag.PendingCount = claims.Count(c => c.Status == ClaimStatus.Pending);
+            ViewBag.VerifiedCount = claims.Count(c => c.Status == ClaimStatus.Verified);
+            ViewBag.ApprovedCount = claims.Count(c => c.Status == ClaimStatus.Approved);
+            ViewBag.RejectedCount = claims.Count(c => c.Status == ClaimStatus.Rejected);
+            ViewBag.TotalCount = claims.Count;
+        }
+
+        // Helper method to log audit actions
         private void LogAudit(string action, string userName)
         {
             _context.AuditTrails.Add(new AuditTrail
