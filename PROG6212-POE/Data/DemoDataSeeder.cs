@@ -1,5 +1,6 @@
 ﻿using PROG6212_POE.Data;
 using PROG6212_POE.Models;
+using System.Linq;
 
 public static class DemoDataSeeder
 {
@@ -40,6 +41,61 @@ public static class DemoDataSeeder
                 FileName = "Invoice_Jane.xlsx",
                 FilePath = "/uploads/Invoice_Jane.xlsx",
                 ClaimId = claim2.ClaimId
+            });
+
+            context.SaveChanges();
+        }
+
+        // Seed Coordinators
+        if (!context.Coordinators.Any())
+        {
+            context.Coordinators.Add(new Coordinator
+            {
+                Name = "Mark Daniels",
+                Email = "mark.daniels@campus.edu"
+            });
+            context.SaveChanges();
+        }
+
+        // Seed Managers
+        if (!context.Managers.Any())
+        {
+            context.Managers.Add(new Manager
+            {
+                Name = "Linda Khoza",
+                Email = "linda.khoza@campus.edu"
+            });
+            context.SaveChanges();
+        }
+
+        // Seed HR
+        if (!context.HRs.Any())
+        {
+            context.HRs.Add(new HR
+            {
+                Name = "Zanele Mthembu",
+                Email = "zanele.hr@campus.edu"
+            });
+            context.SaveChanges();
+        }
+
+        // Seed a few Invoices for HR automation demo
+        if (!context.Invoices.Any())
+        {
+            context.Invoices.Add(new Invoice
+            {
+                ClaimId = 1,
+                LecturerName = "John Smith",
+                AmountPaid = 4000,
+                PaymentStatus = "Paid"
+            });
+
+            context.Invoices.Add(new Invoice
+            {
+                ClaimId = 2,
+                LecturerName = "Jane Doe",
+                AmountPaid = 3750,
+                PaymentStatus = "Processing"
             });
 
             context.SaveChanges();
