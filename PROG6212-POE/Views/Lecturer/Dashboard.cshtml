@@ -10,8 +10,11 @@
         <a asp-action="SubmitClaim" class="btn btn-success me-2">
             <i class="bi bi-plus-circle"></i> Submit New Claim
         </a>
-        <a asp-action="TrackClaim" class="btn btn-secondary">
+        <a asp-action="TrackClaim" class="btn btn-secondary me-2">
             <i class="bi bi-card-list"></i> View Submitted Claims
+        </a>
+        <a asp-action="SelectClaimForUpload" class="btn btn-primary">
+            <i class="bi bi-upload"></i> Upload Supporting Document
         </a>
     </div>
 
@@ -119,7 +122,7 @@
             <h5 class="card-title mb-3">Guidance</h5>
             <ul class="text-muted">
                 <li>Use the "Submit New Claim" button to add claims for the current month.</li>
-                <li>Upload supporting documents directly from the dashboard using the "Upload" button.</li>
+                <li>Upload supporting documents directly from the dashboard using the "Upload" button next to each claim, or click the "Upload Supporting Document" button to navigate and select a claim.</li>
                 <li>Track the status of your claims using the progress bar and status badges.</li>
                 <li>Ensure all documents are in allowed formats: .pdf, .docx, .xlsx.</li>
             </ul>

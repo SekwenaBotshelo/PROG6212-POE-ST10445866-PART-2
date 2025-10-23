@@ -118,7 +118,8 @@ namespace PROG6212_POE.Controllers
                 {
                     FileName = supportingFile.FileName,
                     FilePath = $"/uploads/{uniqueFileName}",
-                    ClaimId = claim.ClaimId
+                    ClaimId = claim.ClaimId,
+                    UploadedOn = DateTime.Now
                 };
 
                 _context.Documents.Add(doc);
@@ -138,9 +139,23 @@ namespace PROG6212_POE.Controllers
                 TempData["ErrorMessage"] = "Please select a file to upload.";
             }
 
-
-
             return RedirectToAction("Dashboard");
+        }
+
+        // GET: Lecturer/SelectClaimForUpload
+        public IActionResult SelectClaimForUpload()
+        {
+            // Fetch all claims
+            var lecturerClaims = _context.Claims
+                                         .Include(c => c.SupportingDocuments)
+                                         .ToList();
+
+            if (!lecturerClaims.Any())
+            {
+                TempData["ErrorMessage"] = "No claims available for uploading documents.";
+            }
+
+            return View(lecturerClaims);
         }
     }
 }

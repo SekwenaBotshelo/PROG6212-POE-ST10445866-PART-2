@@ -13,7 +13,7 @@
     else
     {
         <div class="table-responsive">
-            <table class="table table-striped table-hover table-bordered">
+            <table class="table table-striped table-hover table-bordered align-middle">
                 <thead class="table-light">
                     <tr>
                         <th>Claim ID</th>
@@ -31,7 +31,32 @@
                 <tbody>
                     @foreach (var claim in Model)
                     {
-                        <tr>
+                        var progress = claim.Status switch
+                        {
+                            "Pending Verification" => 33,
+                            "Verified" => 66,
+                            "Approved" => 100,
+                            "Rejected" => 100,
+                            _ => 0
+                        };
+
+                        var badgeClass = claim.Status switch
+                        {
+                            "Pending Verification" => "bg-warning",
+                            "Verified" => "bg-info",
+                            "Approved" => "bg-success",
+                            "Rejected" => "bg-danger",
+                            _ => "bg-secondary"
+                        };
+
+                        var progressClass = claim.Status switch
+                        {
+                            "Approved" => "bg-success",
+                            "Rejected" => "bg-danger",
+                            _ => "bg-info"
+                        };
+
+                        <tr class="@(claim.Status == "Pending Verification" ? "table-warning" : claim.Status == "Rejected" ? "table-danger" : "")">
                             <td>@claim.ClaimId</td>
                             <td>@claim.LecturerName</td>
                             <td>@claim.Month</td>
@@ -39,29 +64,14 @@
                             <td>R @claim.HourlyRate</td>
                             <td>R @claim.TotalAmount</td>
                             <td>
-                                @switch (claim.Status)
-                                {
-                                    case "Pending Verification":
-                                        <span class="badge bg-warning">@claim.Status</span>
-                                        break;
-                                    case "Verified":
-                                        <span class="badge bg-info">@claim.Status</span>
-                                        break;
-                                    case "Approved":
-                                        <span class="badge bg-success">@claim.Status</span>
-                                        break;
-                                    case "Rejected":
-                                        <span class="badge bg-danger">@claim.Status</span>
-                                        break;
-                                    default:
-                                        <span class="badge bg-secondary">@claim.Status</span>
-                                        break;
-                                }
+                                <span class="badge @badgeClass" title="@claim.Status">@claim.Status</span>
                             </td>
                             <td>
                                 <div class="progress" style="height: 20px;">
-                                    <div class="progress-bar" role="progressbar" style="width:@(claim.Status == "Pending Verification" ? 33 : (claim.Status == "Verified" ? 66 : (claim.Status == "Approved" ? 100 : (claim.Status == "Rejected" ? 100 : 0))))%;"
-                                         class="@(claim.Status == "Rejected" ? "bg-danger" : (claim.Status == "Approved" ? "bg-success" : "bg-info"))">
+                                    <div class="progress-bar @progressClass" role="progressbar"
+                                         style="width:@progress%;"
+                                         aria-valuenow="@progress" aria-valuemin="0" aria-valuemax="100"
+                                         title="Progress: @progress%">
                                         @claim.Status
                                     </div>
                                 </div>
@@ -70,10 +80,10 @@
                                 @if (claim.SupportingDocuments != null && claim.SupportingDocuments.Any())
                                 {
                                     <ul class="mb-0">
-                                        @foreach (var doc in claim.SupportingDocuments)
+                                        @foreach (var doc in claim.SupportingDocuments.OrderByDescending(d => d.DocumentId))
                                         {
-                                            <li>
-                                                <a href="@doc.FilePath" target="_blank">@doc.FileName</a>
+                                            <li class="text-truncate" style="max-width: 200px;">
+                                                <a href="@doc.FilePath" target="_blank" title="@doc.FileName">@doc.FileName</a>
                                             </li>
                                         }
                                     </ul>
@@ -84,9 +94,17 @@
                                 }
                             </td>
                             <td>
-                                <a asp-action="UploadDocuments" asp-route-claimId="@claim.ClaimId" class="btn btn-primary btn-sm">
-                                    Upload Document
-                                </a>
+                                <form asp-action="UploadDocuments" asp-route-claimId="@claim.ClaimId"
+                                      method="post" enctype="multipart/form-data" class="d-flex gap-2">
+                                    <input type="file" name="supportingFile" class="form-control form-control-sm" />
+                                    <button type="submit" class="btn btn-primary btn-sm" title="Upload supporting document">
+                                        Upload
+                                    </button>
+                                </form>
+                                @if (claim.SupportingDocuments != null && claim.SupportingDocuments.Any())
+                                {
+                                    <small class="text-muted">Uploaded: @claim.SupportingDocuments.Count()</small>
+                                }
                             </td>
                         </tr>
                     }
@@ -94,4 +112,17 @@
             </table>
         </div>
     }
+
+    <!-- Optional Guidance Card -->
+    <div class="card shadow-sm mt-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Guidance</h5>
+            <ul class="text-muted">
+                <li>Use the "Upload" button to add supporting documents directly from this dashboard.</li>
+                <li>Status badges indicate current claim progress; the progress bar gives a visual representation.</li>
+                <li>Ensure all documents are in allowed formats: .pdf, .docx, .xlsx.</li>
+                <li>Pending or Rejected claims are highlighted for attention.</li>
+            </ul>
+        </div>
+    </div>
 </div>
